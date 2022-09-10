@@ -2071,6 +2071,28 @@ export function databaseTestSuite(
 			}
 		})
 
+		it("tx.scan limit and removes items correctly", () => {
+			const store = createStorage(randomId())
+
+			store.commit({
+				set: [
+					{ key: [1], value: null },
+					{ key: [2], value: null },
+					{ key: [3], value: null },
+				],
+			})
+
+			const transaction = store.transact()
+			transaction.remove([1])
+			transaction.remove([2])
+
+			const dataNoLimit = transaction.scan()
+			assertEqual(dataNoLimit, [{ key: [3], value: null }])
+
+			const data = transaction.scan({ limit: 1 })
+			assertEqual(data, [{ key: [3], value: null }])
+		})
+
 		describe("transactionalWrite", () => {
 			it("Works for both  and sync, but no reads.", () => {
 				const id = randomId()
